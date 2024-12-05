@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .banner {
+            width: 100px;
+            height: 100%;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #333;
+        }
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 300px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .calculator input {
+            grid-column: span 4;
+            font-size: 30px;
+            padding: 10px;
+            text-align: right;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .calculator button {
+            padding: 20px;
+            font-size: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+        .calculator button:hover {
+            background-color: #ddd;
+        }
+        .banner-left {
+            margin-right: 240px;
+        }
+        .banner-right {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="banner banner-left">
+            <img src="http://gcseisclose.free.nf/4f7b2d95ac7ea6d0ad2de43b5b56762249f41cd8.jpeg">
+
+        </div>
+
+        <div class="calculator">
+            <input type="text" id="display" disabled>
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button onclick="appendToDisplay('+')">+</button>
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button onclick="appendToDisplay('*')">*</button>
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button onclick="clearDisplay()">C</button>
+            <button onclick="appendToDisplay('/')">/</button>
+            <button onclick="calculateResult()">=</button>
+        </div>
+
+        <div class="banner banner-right">
+            <p>DO MATHS!!!</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to handle button presses for the calculator
+        function appendToDisplay(value) {
+            document.getElementById('display').value += value;
+        }
+
+        // Function to clear the calculator display
+        function clearDisplay() {
+            document.getElementById('display').value = "";
+        }
+
+        // Function to evaluate the expression
+        function calculateResult() {
+            let displayValue = document.getElementById('display').value;
+            
+            // If the input is "1092", open proxy.html
+            if (displayValue === "1092") {
+                window.location.href = "forms.html"; // Redirect to forms.html
+                return; // Prevent the normal calculation from happening
+            }
+
+            // Otherwise, try to evaluate the expression as usual
+            try {
+                let result = eval(displayValue);
+                document.getElementById('display').value = result;
+            } catch (e) {
+                document.getElementById('display').value = "Error";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            text-align: center;
+        }
+        h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .hidden {
+            display: none;
+        }
+        .cat-image {
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            display: none;
+        }
+        .image-go-brrrrr {
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+            transition: opacity 0.3s ease;
+            opacity: 1;
+            display: block;
+        }
+        .cat-image.visible {
+            display: block;
+            opacity: 1;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+        }
+        .error {
+            color: #d9534f;
+            font-size: 14px;
+            margin-top: -8px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Plwese fill this form </h3>
+
+        <!-- Step 1: Name and Email -->
+        <div id="step-1">
+            <img class="image-go-brrrrr" src="https://i.imgflip.com/9bzr90.jpg">
+            <input type="text" id="name" placeholder="Your Name" required>
+            <input type="email" id="email" placeholder="Your Email" required>
+            <p id="error-message" class="error hidden">Please enter valid details.</p>
+            <button onclick="goToStep2()">Next</button>
+        </div>
+
+        <!-- Step 2: Are you friends with Aaron? -->
+        <div id="step-2" class="hidden">
+            <p>Are you friends with Aaron?</p>
+            <button onclick="handleFriendsAnswer('yes')">Yes</button>
+            <button onclick="handleFriendsAnswer('no')">No</button>
+        </div>
+
+        <!-- Cat image displayed when "No" is clicked -->
+        <img id="cat-image" class="cat-image" <img src="https://i.imgflip.com/9bzsmx.jpg" />
+            <button onclick="handleNext()" id="cat-button" class="hidden">Next</button>
+
+        <!-- Step 3: Does Dixons suck? -->
+        <div id="step-3" class="hidden">
+            <p>Does Dixons suck?</p>
+            <button onclick="handleDixonsAnswer('yes')">Yes</button>
+            <button onclick="handleDixonsAnswer('no')">No</button>
+        </div>
+    </div>
+
+    <script>
+        const formData = {
+            name: "",
+            email: "",
+            friendsWithAaron: "",
+            dixonsSuck: ""
+        };
+
+        // Step 1: Validate inputs and move to step 2
+        function goToStep2() {
+            const nameInput = document.getElementById('name').value.trim();
+            const emailInput = document.getElementById('email').value.trim();
+            const errorMessage = document.getElementById('error-message');
+
+            if (nameInput && emailInput && validateEmail(emailInput)) {
+                formData.name = nameInput;
+                formData.email = emailInput;
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+            } else {
+                errorMessage.classList.remove('hidden');
+                errorMessage.textContent = "Please enter valid name and email.";
+            }
+        }
+
+        // Step 2: Handle answer for "Are you friends with Aaron?"
+        function handleFriendsAnswer(answer) {
+            formData.friendsWithAaron = answer;
+
+            const catImage = document.getElementById('cat-image');
+            const catButton = document.getElementById('cat-button');
+            
+            if (answer === "no") {
+                catImage.classList.add('visible');
+                catButton.classList.remove('hidden');
+
+                
+            } else {
+                catImage.classList.remove('visible');
+                catButton.classList.add('hidden');
+            }
+
+            document.getElementById('step-2').classList.add('hidden');
+            //document.getElementById('step-3').classList.remove('hidden');
+        }
+        function handleNext(){
+            const catImage = document.getElementById('cat-image');
+            const catButton = document.getElementById('cat-button');
+            document.getElementById('step-3').classList.remove('hidden');
+            catImage.classList.remove('visible');
+            catButton.classList.add('hidden');
+
+        }
+        // Step 3: Handle answer for "Does Dixons suck?"
+        function handleDixonsAnswer(answer) {
+            formData.dixonsSuck = answer;
+
+            sendDataToGoogleSheets();
+
+            // Redirect to proxy.html
+            window.location.href = "proxy.html";
+        }
+
+        // Utility: Validate email format
+        function validateEmail(email) {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailPattern.test(email);
+        }
+
+        // Send form data to Google Sheets using POST
+        function sendDataToGoogleSheets() {
+            const url = "https://script.google.com/macros/s/AKfycbxfanSvAaRukFFNNPHrcz9Q5QYVFKwWQ4V5olLTatkzrCG9seM3C5AOkNxToHxGyG-Avw/exec"; // Replace with your URL
+
+            const params = {
+                method: "POST",
+                body: JSON.stringify(formData),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            };
+
+            fetch(url, params)
+                .then(response => console.log("Form submitted successfully"))
+                .catch(error => console.error("Error submitting form", error));
+        }
+    </script>
+</body>
+</html>
