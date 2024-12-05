@@ -1,38 +1,84 @@
-<?php
-// proxy.php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Browser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        #search-bar {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        #search-bar input {
+            flex: 1;
+            padding: 12px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+        #search-bar button {
+            padding: 12px;
+            font-size: 18px;
+            border: 1px solid #4CAF50;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        #search-bar button:hover {
+            background-color: #45a049;
+        }
+        iframe {
+            display: none;
+            width: 100%;
+            height: 80vh;
+            border: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
 
-if (!isset($_GET['url'])) {
-    http_response_code(400);
-    echo "URL parameter is required.";
-    exit;
-}
+    <h1>Proxy Browser</h1>
+    <div id="search-bar">
+        <input type="text" id="url-input" placeholder="Enter URL to browse">
+        <button onclick="loadPage()">Go</button>
+    </div>
+    <iframe id="proxy-frame"></iframe>
 
-$url = $_GET['url'];
+    <script>
+        // Load the URL in the iframe via the proxy.php
+        function loadPage() {
+            const url = document.getElementById('url-input').value;
+            const iframe = document.getElementById('proxy-frame');
+            if (url) {
+                iframe.src = `proxy.php?url=${encodeURIComponent(url)}`;
+                iframe.style.display = 'block';
+            } else {
+                alert("Please enter a URL.");
+            }
+        }
+    </script>
 
-// Validate URL
-if (!filter_var($url, FILTER_VALIDATE_URL)) {
-    http_response_code(400);
-    echo "Invalid URL.";
-    exit;
-}
-
-// Fetch the content from the requested URL
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_HEADER, false);
-
-$response = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-if (curl_errno($ch)) {
-    http_response_code(500);
-    echo "Error fetching the URL.";
-    exit;
-}
-
-curl_close($ch);
-
-http_response_code($http_code);
-echo $response;
+</body>
+</html>
