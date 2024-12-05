@@ -67,12 +67,12 @@
     <iframe id="proxy-frame"></iframe>
 
     <script>
-        // Load the URL in the iframe via the proxy.php
+        // Load the URL in the iframe via the ngrok proxy.php
         function loadPage() {
             const url = document.getElementById('url-input').value;
             const iframe = document.getElementById('proxy-frame');
             if (url) {
-                iframe.src = `proxy.php?url=${encodeURIComponent(url)}`;
+                iframe.src = `https://d903-188-127-94-226.ngrok-free.app/proxy.php?url=${encodeURIComponent(url)}`;
                 iframe.style.display = 'block';
             } else {
                 alert("Please enter a URL.");
