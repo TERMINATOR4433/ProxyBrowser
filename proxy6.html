@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skynet</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px;
+            width: 100%;
+        }
+        .nav-links a {
+            color: rgba(0,0,0,0.87);
+            text-decoration: none;
+            margin-left: 15px;
+            font-size: 13px;
+        }
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 20px;
+            width: 100%;
+        }
+        .logo {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .logo span {
+            font-size: 8vw;
+            max-font-size: 80px;
+            font-weight: normal;
+        }
+        .logo span:nth-child(1) { color: #4285F4; }
+        .logo span:nth-child(2) { color: #EA4335; }
+        .logo span:nth-child(3) { color: #FBBC05; }
+        .logo span:nth-child(4) { color: #4285F4; }
+        .logo span:nth-child(5) { color: #34A853; }
+        .logo span:nth-child(6) { color: #EA4335; }
+
+        .search-container {
+            width: 100%;
+            max-width: 580px;
+            padding: 10px;
+        }
+        .search-bar {
+            display: flex;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            height: 44px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .search-bar input {
+            flex-grow: 1;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            outline: none;
+        }
+        .search-bar button {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 0 24px 24px 0;
+            cursor: pointer;
+        }
+        #proxy-frame {
+            width: 100%;
+            height: 0;
+            border: none;
+            transition: height 0.3s ease;
+            background: #f1f1f1;
+        }
+        #proxy-frame.active {
+            height: 80vh;
+        }
+        #proxy-frame.minimized {
+            height: 50px;
+        }
+        .frame-controls {
+            display: none;
+            padding: 10px;
+            background-color: #f1f1f1;
+            text-align: right;
+        }
+        .frame-controls button {
+            background-color: #4285F4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin-left: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .proxy-selector {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .proxy-selector button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .proxy-selector button.active {
+            background-color: #4285F4;
+            color: white;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .logo span {
+                font-size: 12vw;
+            }
+            .search-bar {
+                flex-direction: column;
+                height: auto;
+            }
+            .search-bar input, 
+            .search-bar button {
+                width: 100%;
+                border-radius: 24px;
+                margin: 5px 0;
+            }
+            .proxy-selector {
+                flex-direction: column;
+            }
+            .proxy-selector button {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nav-links">
+                <a href="#">Gmail</a>
+                <a href="#">Images</a>
+            </div>
+        </div>
+        
+        <div class="logo-container">
+            <div class="logo">
+                <span>S</span>
+                <span>k</span>
+                <span>y</span>
+                <span>n</span>
+                <span>e</span>
+                <span>t</span>
+            </div>
+            
+            <div class="search-container">
+                <div class="search-bar">
+                    <input type="text" id="url-input" placeholder="Enter URL to browse">
+                    <button onclick="loadPage()">Go</button>
+                </div>
+            </div>
+
+            <div class="proxy-selector">
+                <button onclick="setProxyMethod('allorigins')" class="active" id="allorigins-btn">AllOrigins</button>
+                <button onclick="setProxyMethod('cors')" id="cors-btn">CORS Proxy</button>
+                <button onclick="setProxyMethod('iframe')" id="iframe-btn">HTML Iframe</button>
+            </div>
+        </div>
+
+        <div class="frame-controls" id="frame-controls">
+            <button onclick="toggleMinimize()">Minimize</button>
+            <button onclick="toggleFrameSize()">Fullscreen</button>
+        </div>
+        
+        <iframe id="proxy-frame"></iframe>
+    </div>
+
+    <script>
+        let currentProxyMethod = 'allorigins';
+        let isFullscreen = false;
+        let isMinimized = false;
+
+        function setProxyMethod(method) {
+            // Reset active state of buttons
+            ['allorigins', 'cors', 'iframe'].forEach(m => {
+                document.getElementById(`${m}-btn`).classList.remove('active');
+            });
+            
+            // Set active state for selected method
+            document.getElementById(`${method}-btn`).classList.add('active');
+            currentProxyMethod = method;
+        }
+
+        function loadPage() {
+            const url = document.getElementById('url-input').value;
+            const iframe = document.getElementById('proxy-frame');
+            const frameControls = document.getElementById('frame-controls');
+            
+            if (url) {
+                let proxyUrl;
+                switch(currentProxyMethod) {
+                    case 'allorigins':
+                        // AllOrigins CORS proxy
+                        proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                        break;
+                    case 'cors':
+                        // Alternative CORS proxy
+                        proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+                        break;
+                    case 'iframe':
+                        // Direct iframe embedding (may not work with all sites)
+                        proxyUrl = url;
+                        break;
+                }
+
+                iframe.src = proxyUrl;
+                iframe.classList.add('active');
+                frameControls.style.display = 'block';
+                
+                // Reset any previous states
+                isFullscreen = false;
+                isMinimized = false;
+                iframe.classList.remove('fullscreen', 'minimized');
+                iframe.style.position = '';
+                iframe.style.top = '';
+                iframe.style.left = '';
+                iframe.style.width = '100%';
+                iframe.style.height = '80vh';
+                iframe.style.zIndex = '';
+            } else {
+                alert("Please enter a URL.");
+            }
+        }
+
+        function toggleFrameSize() {
+            const iframe = document.getElementById('proxy-frame');
+            
+            // If minimized, first un-minimize
+            if (isMinimized) {
+                toggleMinimize();
+            }
+
+            isFullscreen = !isFullscreen;
+            
+            if (isFullscreen) {
+                iframe.style.position = 'fixed';
+                iframe.style.top = '0';
+                iframe.style.left = '0';
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.zIndex = '1000';
+            } else {
+                iframe.style.position = '';
+                iframe.style.top = '';
+                iframe.style.left = '';
+                iframe.style.width = '100%';
+                iframe.style.height = '80vh';
+                iframe.style.zIndex = '';
+            }
+        }
+
+        function toggleMinimize() {
+            const iframe = document.getElementById('proxy-frame');
+            
+            // If fullscreen, first exit fullscreen
+            if (isFullscreen) {
+                toggleFrameSize();
+            }
+
+            isMinimized = !isMinimized;
+            
+            if (isMinimized) {
+                iframe.classList.add('minimized');
+                iframe.style.height = '50px';
+            } else {
+                iframe.classList.remove('minimized');
+                iframe.style.height = '80vh';
+            }
+        }
+    </script>
+</body>
+</html>
