@@ -187,7 +187,7 @@
                         proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`;
                         break;
                     case 'customproxy':
-                        proxyUrl = `https://yourname.loca.lt/proxy.php?csurl=${url}`;
+                        proxyUrl = `https://yourname.loca.lt/proxy.php?csurl=${encodeURIComponent(url)}`;
                         break;
                     case 'iframe':
                         proxyUrl = url;
