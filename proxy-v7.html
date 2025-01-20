@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skynet</title>
     <style>
-        /* WARNING: Comments in this code are added purely for aesthetic reasons and NOT for clarification.
-           They are here because comments look cool, not to help anyone understand the code.
-           Read at your own risk. You have been warned. */
-
+        /* Basic reset and styling */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -48,22 +45,6 @@
             padding: 20px;
             width: 100%;
         }
-        .logo {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .logo span {
-            font-size: 8vw;
-            max-font-size: 80px;
-            font-weight: normal;
-        }
-        .logo span:nth-child(1) { color: #4285F4; }
-        .logo span:nth-child(2) { color: #EA4335; }
-        .logo span:nth-child(3) { color: #FBBC05; }
-        .logo span:nth-child(4) { color: #4285F4; }
-        .logo span:nth-child(5) { color: #34A853; }
-        .logo span:nth-child(6) { color: #EA4335; }
-
         .search-container {
             width: 100%;
             max-width: 580px;
@@ -128,17 +109,7 @@
                 <a href="#">Images</a>
             </div>
         </div>
-
         <div class="logo-container">
-            <div class="logo">
-                <span>S</span>
-                <span>k</span>
-                <span>y</span>
-                <span>n</span>
-                <span>e</span>
-                <span>t</span>
-            </div>
-
             <div class="search-container">
                 <div class="search-bar">
                     <input type="text" id="url-input" placeholder="Enter URL to browse">
@@ -154,7 +125,6 @@
                 <button onclick="setProxyMethod('iframe')" id="iframe-btn">Iframe</button>
             </div>
         </div>
-
         <iframe id="proxy-frame"></iframe>
     </div>
     <script>
@@ -166,6 +136,7 @@
         }
 
         function setProxyMethod(method) {
+            // Update the active proxy method
             ['allorigins', 'cors', 'thingproxy', 'customproxy', 'iframe'].forEach(m => {
                 document.getElementById(`${m}-btn`).classList.remove('active');
             });
@@ -176,9 +147,6 @@
         function loadPage() {
             const url = document.getElementById('url-input').value;
             const iframe = document.getElementById('proxy-frame');
-            const cssLink = document.createElement('link');
-            cssLink.rel = 'stylesheet';
-            cssLink.type = 'text/css';
 
             if (url) {
                 let proxyUrl;
@@ -200,13 +168,13 @@
                         break;
                 }
 
-                // Fetch the CSS from the URL and apply it to the iframe
+                // Fetch the HTML content from the proxy URL
                 fetch(proxyUrl)
                     .then(response => {
-                        if (response.ok) {
-                            return response.text();
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok.');
                         }
-                        throw new Error('Network response was not ok.');
+                        return response.text();
                     })
                     .then(data => {
                         // Create a Blob URL for the fetched content
@@ -214,17 +182,8 @@
                         iframe.src = URL.createObjectURL(blob);
                         iframe.classList.add('active');
 
-                        // Check for external CSS links and load them
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(data, 'text/html');
-                        const links = doc.querySelectorAll('link[rel="stylesheet"]');
-
-                        links.forEach(link => {
-                            const href = link.href;
-                            const cssLinkClone = cssLink.cloneNode();
-                            cssLinkClone.href = href;
-                            document.head.appendChild(cssLinkClone);
-                        });
+                        // Load external CSS links
+                        loadExternalCSS(data);
                     })
                     .catch(error => {
                         alert("Failed to load the page: " + error.message);
@@ -232,6 +191,24 @@
             } else {
                 alert("Please enter a URL.");
             }
+        }
+
+        function loadExternalCSS(htmlContent) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const links = doc.querySelectorAll('link[rel="stylesheet"]');
+
+            links.forEach(link => {
+                const cssLink = document.createElement('link');
+                cssLink.rel = 'stylesheet';
+                cssLink.href = link.href;
+
+                // Append the CSS link to the document head
+                cssLink.onload = () => console.log(`CSS loaded: ${link.href}`);
+                cssLink.onerror = () => console.warn(`Failed to load CSS: ${link.href}`);
+
+                document.head.appendChild(cssLink);
+            });
         }
     </script>
 </body>
